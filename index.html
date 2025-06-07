@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mines Game 💣</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0d1117;
+      color: #ffffff;
+      text-align: center;
+      padding-top: 30px;
+    }
+
+    h1 {
+      color: #58a6ff;
+      margin-bottom: 10px;
+    }
+
+    #game {
+      display: grid;
+      grid-template-columns: repeat(5, 70px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    .tile {
+      width: 70px;
+      height: 70px;
+      background-color: #161b22;
+      border: 2px solid #30363d;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s, background-color 0.3s;
+      border-radius: 8px;
+      box-shadow: 0 0 5px #000;
+    }
+
+    .tile:hover {
+      background-color: #1f6feb;
+      transform: scale(1.05);
+    }
+
+    .tile.clicked {
+      background-color: #2ecc71;
+      transform: scale(1.1);
+      pointer-events: none;
+      animation: flip 0.4s ease;
+    }
+
+    .tile.mine {
+      background-color: #e74c3c !important;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes flip {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(180deg); }
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    button, input {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button {
+      background-color: #238636;
+      color: white;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2ea043;
+    }
+
+    #cashOutBtn {
+      background-color: #f39c12;
+    }
+
+    #cashOutBtn:hover {
+      background-color: #e67e22;
+    }
+
+    input[type="number"] {
+      width: 100px;
+      text-align: center;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 18px;
+      min-height: 30px;
+    }
+
+    .win {
+      color: #2ecc71;
+      animation: glow 1s infinite alternate;
+    }
+
+    .lose {
+      color: #e74c3c;
+      animation: shake 0.5s;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 5px #2ecc71;
+      }
+      to {
+        text-shadow: 0 0 15px #2ecc71;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mines Game 💣</h1>
+  <p>💵 Balance: $<span id="balance">100.00</span></p>
+
+  <label>Bet Amount: $ 
+    <input type="number" id="betAmount" value="10" min="1">
+  </label>
+  <br>
+
+  <label>Number of Mines: 
+    <input type="number" id="mineCount" value="5" min="1" max="20">
+  </label>
+  <br>
+
+  <button onclick="startGame()">🎮 Start Game</button>
+  <button onclick="cashOut()" id="cashOutBtn" disabled>💰 Cash Out</button>
+
+  <p id="status"></p>
+  <div id="game"></div>
+
+  <script>
+    let gridSize = 5;
+    let mineCount = 5;
+    let tiles = [];
+    let mineIndexes = [];
+    let balance = parseFloat(localStorage.getItem('balance')) || 100;  // Load saved balance
+    let currentBet = 0;
+    let winnings = 0;
+    let gameStarted = false;
+    let safeClicks = 0;
+    let gameOver = false;
+
+    function updateBalance() {
+      document.getElementById('balance').textContent = balance.toFixed(2);
+      localStorage.setItem('balance', balance.toFixed(2)); // Save the updated balance
+    }
+
+    function startGame() {
+      const betInput = document.getElementById('betAmount');
+      const mineInput = document.getElementById('mineCount');
+      
+      currentBet = parseFloat(betInput.value);
+      mineCount = parseInt(mineInput.value);
+
+      if (isNaN(currentBet) || currentBet <= 0 || currentBet > balance || mineCount < 1 || mineCount > 20) {
+        alert("Invalid bet or mine count.");
+        return;
+      }
+
+      balance -= currentBet;
+      updateBalance();
+
+      // Dynamically adjust the multiplier based on mine count
+      const multiplier = 1 + (mineCount / 20); // More mines = higher multiplier
+      document.getElementById('status').textContent = '';
+      document.getElementById('status').className = '';
+      document.getElementById('cashOutBtn').disabled = false;
+
+      gameStarted = true;
+      gameOver = false;
+      safeClicks = 0;
+      winnings = currentBet;
+
+      const gameBoard = document.getElementById('game');
+      gameBoard.innerHTML = '';
+      tiles = [];
+      mineIndexes = [];
+
+      // Generate random mine positions
+      while (mineIndexes.length < mineCount) {
+        let index = Math.floor(Math.random() * (gridSize * gridSize));
+        if (!mineIndexes.includes(index)) {
+          mineIndexes.push(index);
+        }
+      }
+
+      // Create grid tiles
+      for (let i = 0; i < gridSize * gridSize; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.addEventListener('click', () => handleClick(i));
+        gameBoard.appendChild(tile);
+        tiles.push(tile);
+      }
+
+      // Store the multiplier
+      gameBoard.dataset.multiplier = multiplier.toFixed(2);
+    }
+
+    function handleClick(index) {
+      if (!gameStarted || gameOver || tiles[index].classList.contains('clicked')) return;
+
+      if (mineIndexes.includes(index)) {
+        tiles[index].classList.add('mine');
+        document.getElementById('status').textContent = '💥 You hit a mine! Bet lost.';
+        document.getElementById('status').className = 'lose';
+        revealAllMines();
+        gameOver = true;
+        document.getElementById('cashOutBtn').disabled = true;
+        winnings = 0;
+      } else {
+        tiles[index].classList.add('clicked');
+        safeClicks++;
+
+        // Dynamically adjust the winnings multiplier based on mine count
+        const multiplier = parseFloat(document.getElementById('game').dataset.multiplier);
+        winnings *= multiplier;
+
+        document.getElementById('status').textContent = `✅ Safe! Winnings: $${winnings.toFixed(2)}`;
+        document.getElementById('status').className = 'win';
+
+        if (safeClicks === (gridSize * gridSize - mineCount)) {
+          document.getElementById('status').textContent = `🎉 All safe tiles found! You win $${winnings.toFixed(2)}`;
+          document.getElementById('status').className = 'win';
+          balance += winnings;
+          updateBalance();
+          gameOver = true;
+          document.getElementById('cashOutBtn').disabled = true;
+        }
+      }
+    }
+
+    function revealAllMines() {
+      mineIndexes.forEach(i => {
+        tiles[i].classList.add('mine');
+      });
+    }
+
+    function cashOut() {
+      if (gameOver || !gameStarted) return;
+      balance += winnings;
+      updateBalance();
+      document.getElementById('status').textContent = `💰 You cashed out: $${winnings.toFixed(2)}`;
+      document.getElementById('status').className = 'win';
+      gameOver = true;
+      document.getElementById('cashOutBtn').disabled = true;
+      revealAllMines();
+    }
+
+    updateBalance();
+  </script>
+</body>
+</html>
