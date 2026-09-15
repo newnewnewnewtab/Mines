@@ -5,198 +5,529 @@
      crossorigin="anonymous"></script>
   
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mines Game 💣</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0d1117;
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
       color: #ffffff;
       text-align: center;
-      padding-top: 30px;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
     }
 
     h1 {
       color: #58a6ff;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
+      font-size: 2.5em;
+      text-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+    }
+
+    .subtitle {
+      color: #8b949e;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-around;
+      gap: 10px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background-color: #1f2937;
+      border: 2px solid #30363d;
+      padding: 15px 20px;
+      border-radius: 8px;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .stat-label {
+      color: #8b949e;
+      font-size: 0.85em;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      color: #58a6ff;
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    .stat-value.warning {
+      color: #f39c12;
+    }
+
+    .stat-value.danger {
+      color: #e74c3c;
+    }
+
+    .controls {
+      background-color: #161b22;
+      border: 2px solid #30363d;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      color: #c9d1d9;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    input[type="number"] {
+      width: 100px;
+      padding: 10px;
+      border: 2px solid #30363d;
+      border-radius: 6px;
+      background-color: #0d1117;
+      color: #58a6ff;
+      font-size: 16px;
+      text-align: center;
+      transition: border-color 0.3s;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: #30363d;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #58a6ff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #79c0ff;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #58a6ff;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s;
+    }
+
+    input[type="range"]::-moz-range-thumb:hover {
+      background: #79c0ff;
+    }
+
+    .mine-counter {
+      background-color: #0d1117;
+      border: 2px solid #30363d;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #58a6ff;
+      font-weight: bold;
+      min-width: 60px;
+    }
+
+    .buttons-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #startBtn {
+      background-color: #238636;
+      color: white;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    #startBtn:hover:not(:disabled) {
+      background-color: #2ea043;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(35, 134, 54, 0.4);
+    }
+
+    #startBtn:disabled {
+      background-color: #6e7681;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    #cashOutBtn {
+      background-color: #f39c12;
+      color: white;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    #cashOutBtn:hover:not(:disabled) {
+      background-color: #e67e22;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+    }
+
+    #cashOutBtn:disabled {
+      background-color: #6e7681;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    #resetBtn {
+      background-color: #da3633;
+      color: white;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    #resetBtn:hover {
+      background-color: #f85149;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(218, 54, 51, 0.4);
+    }
+
+    #resetBtn:disabled {
+      opacity: 0;
+      pointer-events: none;
+      cursor: not-allowed;
     }
 
     #game {
       display: grid;
-      grid-template-columns: repeat(5, 70px);
-      grid-gap: 10px;
-      justify-content: center;
-      margin: 20px auto;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin: 25px auto;
+      max-width: 450px;
     }
 
     .tile {
-      width: 70px;
-      height: 70px;
+      aspect-ratio: 1;
       background-color: #161b22;
-      border: 2px solid #30363d;
-      font-size: 24px;
+      border: 3px solid #30363d;
+      font-size: 2em;
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.3s, background-color 0.3s;
+      transition: all 0.3s;
       border-radius: 8px;
-      box-shadow: 0 0 5px #000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      font-weight: bold;
     }
 
-    .tile:hover {
+    .tile:hover:not(.clicked):not(.mine) {
       background-color: #1f6feb;
-      transform: scale(1.05);
+      border-color: #58a6ff;
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(88, 166, 255, 0.3);
     }
 
     .tile.clicked {
       background-color: #2ecc71;
-      transform: scale(1.1);
+      border-color: #27ae60;
+      transform: scale(0.95);
       pointer-events: none;
-      animation: flip 0.4s ease;
+      animation: clickPulse 0.4s ease;
     }
 
     .tile.mine {
       background-color: #e74c3c !important;
-      animation: shake 0.4s ease;
+      border-color: #c0392b !important;
+      animation: shake 0.5s ease;
     }
 
-    @keyframes flip {
-      from { transform: rotateY(0deg); }
-      to { transform: rotateY(180deg); }
+    .tile:disabled {
+      pointer-events: none;
+    }
+
+    @keyframes clickPulse {
+      0% { transform: scale(1.1); opacity: 0.8; }
+      50% { transform: scale(0.98); }
+      100% { transform: scale(0.95); opacity: 1; }
     }
 
     @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      50% { transform: translateX(4px); }
-      75% { transform: translateX(-2px); }
-      100% { transform: translateX(0); }
-    }
-
-    button, input {
-      margin: 10px;
-      padding: 10px 20px;
-      border: none;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button {
-      background-color: #238636;
-      color: white;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #2ea043;
-    }
-
-    #cashOutBtn {
-      background-color: #f39c12;
-    }
-
-    #cashOutBtn:hover {
-      background-color: #e67e22;
-    }
-
-    input[type="number"] {
-      width: 100px;
-      text-align: center;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
     }
 
     #status {
-      margin-top: 15px;
-      font-size: 18px;
-      min-height: 30px;
+      margin-top: 20px;
+      font-size: 1.2em;
+      min-height: 35px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: #1f2937;
+      border-left: 4px solid #58a6ff;
+      animation: statusSlide 0.3s ease;
     }
 
-    .win {
+    #status.win {
       color: #2ecc71;
-      animation: glow 1s infinite alternate;
+      border-left-color: #2ecc71;
+      background-color: rgba(46, 204, 113, 0.1);
     }
 
-    .lose {
+    #status.lose {
       color: #e74c3c;
-      animation: shake 0.5s;
+      border-left-color: #e74c3c;
+      background-color: rgba(231, 76, 60, 0.1);
     }
 
-    @keyframes glow {
-      from {
-        text-shadow: 0 0 5px #2ecc71;
+    @keyframes statusSlide {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: #8b949e;
+    }
+
+    .empty-state p {
+      margin: 10px 0;
+      font-size: 1.1em;
+    }
+
+    .payout-info {
+      background-color: #1f2937;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 0.85em;
+      color: #8b949e;
+    }
+
+    .payout-info span {
+      color: #58a6ff;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8em;
       }
-      to {
-        text-shadow: 0 0 15px #2ecc71;
+
+      .stat-box {
+        min-width: 100px;
+        padding: 12px 15px;
+      }
+
+      .stat-value {
+        font-size: 1.4em;
+      }
+
+      #game {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        max-width: 100%;
+      }
+
+      button {
+        padding: 10px 16px;
+        font-size: 14px;
       }
     }
   </style>
 </head>
 <body>
 
-  <h1>Mines Game 💣</h1>
-  <p>💵 Balance: $<span id="balance">100.00</span></p>
+  <div class="container">
+    <h1>⛏️ MINES</h1>
+    <p class="subtitle">Navigate the minefield and cash out to win big</p>
 
-  <label>Bet Amount: $ 
-    <input type="number" id="betAmount" value="10" min="1">
-  </label>
-  <br>
+    <div class="stats-bar">
+      <div class="stat-box">
+        <div class="stat-label">💵 Balance</div>
+        <div class="stat-value" id="balanceDisplay">$100.00</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">🎯 Current Bet</div>
+        <div class="stat-value" id="currentBetDisplay">$0.00</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">💰 Potential Win</div>
+        <div class="stat-value" id="winningDisplay">$0.00</div>
+      </div>
+    </div>
 
-  <label>Number of Mines: 
-    <input type="number" id="mineCount" value="5" min="1" max="20">
-  </label>
-  <br>
+    <div class="controls">
+      <div class="control-group">
+        <label for="betAmount">Bet Amount:</label>
+        <input type="number" id="betAmount" value="10" min="1" step="1">
+      </div>
 
-  <button onclick="startGame()">🎮 Start Game</button>
-  <button onclick="cashOut()" id="cashOutBtn" disabled>💰 Cash Out</button>
+      <div class="control-group">
+        <label for="mineSlider">Number of Mines:</label>
+        <div class="slider-container">
+          <span>1</span>
+          <input type="range" id="mineSlider" min="1" max="24" value="3">
+          <span>24</span>
+        </div>
+        <div class="mine-counter" id="mineCounter">3 💣</div>
+      </div>
 
-  <p id="status"></p>
-  <div id="game"></div>
+      <div class="payout-info">
+        Win Multiplier: <span id="multiplierDisplay">1.15x</span> | Safe Tiles: <span id="safeTilesDisplay">22</span> / 25
+      </div>
+
+      <div class="buttons-group">
+        <button id="startBtn" onclick="startGame()">🎮 START GAME</button>
+        <button id="cashOutBtn" onclick="cashOut()" disabled>💰 CASH OUT</button>
+        <button id="resetBtn" onclick="resetBalance()">🔄 RESET</button>
+      </div>
+    </div>
+
+    <div id="status"></div>
+    <div id="game"></div>
+  </div>
 
   <script>
-    let gridSize = 5;
-    let mineCount = 5;
+    const GRID_SIZE = 5;
+    const TOTAL_TILES = GRID_SIZE * GRID_SIZE; // 25 tiles
+
+    let mineCount = 3;
     let tiles = [];
     let mineIndexes = [];
-    let balance = parseFloat(localStorage.getItem('balance')) || 100;  // Load saved balance
+    let balance = parseFloat(localStorage.getItem('minesBalance')) || 100;
     let currentBet = 0;
     let winnings = 0;
     let gameStarted = false;
     let safeClicks = 0;
     let gameOver = false;
+    let multiplier = 1;
 
-    function updateBalance() {
-      document.getElementById('balance').textContent = balance.toFixed(2);
-      localStorage.setItem('balance', balance.toFixed(2)); // Save the updated balance
+    function updateDisplay() {
+      document.getElementById('balanceDisplay').textContent = '$' + balance.toFixed(2);
+      document.getElementById('currentBetDisplay').textContent = '$' + currentBet.toFixed(2);
+      document.getElementById('winningDisplay').textContent = '$' + winnings.toFixed(2);
+      localStorage.setItem('minesBalance', balance.toFixed(2));
+      
+      // Show/hide reset button
+      if (balance <= 0) {
+        document.getElementById('resetBtn').style.opacity = '1';
+        document.getElementById('resetBtn').style.pointerEvents = 'auto';
+        document.getElementById('startBtn').disabled = true;
+      } else {
+        document.getElementById('resetBtn').style.opacity = '0';
+        document.getElementById('resetBtn').style.pointerEvents = 'none';
+        document.getElementById('startBtn').disabled = false;
+      }
     }
+
+    // Mine slider update
+    document.getElementById('mineSlider').addEventListener('input', (e) => {
+      mineCount = parseInt(e.target.value);
+      document.getElementById('mineCounter').textContent = mineCount + ' 💣';
+      
+      const safeTiles = TOTAL_TILES - mineCount;
+      document.getElementById('safeTilesDisplay').textContent = safeTiles;
+      
+      // Calculate multiplier using proper odds
+      // Each safe click multiplies by: (remaining_total - 1) / (remaining_safe - 1)
+      // Average multiplier per click = TOTAL_TILES / (TOTAL_TILES - mineCount)
+      multiplier = (TOTAL_TILES / safeTiles).toFixed(2);
+      document.getElementById('multiplierDisplay').textContent = multiplier + 'x';
+    });
+
+    // Trigger initial multiplier display
+    document.getElementById('mineSlider').dispatchEvent(new Event('input'));
 
     function startGame() {
       const betInput = document.getElementById('betAmount');
-      const mineInput = document.getElementById('mineCount');
-      
       currentBet = parseFloat(betInput.value);
-      mineCount = parseInt(mineInput.value);
 
-      if (isNaN(currentBet) || currentBet <= 0 || currentBet > balance || mineCount < 1 || mineCount > 20) {
-        alert("Invalid bet or mine count.");
+      if (isNaN(currentBet) || currentBet <= 0) {
+        alert('Please enter a valid bet amount.');
+        return;
+      }
+
+      if (currentBet > balance) {
+        alert('Insufficient balance. Maximum bet: $' + balance.toFixed(2));
         return;
       }
 
       balance -= currentBet;
-      updateBalance();
+      updateDisplay();
 
-      // Dynamically adjust the multiplier based on mine count
-      const multiplier = 1 + (mineCount / 20); // More mines = higher multiplier
       document.getElementById('status').textContent = '';
       document.getElementById('status').className = '';
       document.getElementById('cashOutBtn').disabled = false;
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('mineSlider').disabled = true;
+      document.getElementById('betAmount').disabled = true;
 
       gameStarted = true;
       gameOver = false;
       safeClicks = 0;
       winnings = currentBet;
+      updateDisplay();
 
       const gameBoard = document.getElementById('game');
       gameBoard.innerHTML = '';
@@ -205,54 +536,55 @@
 
       // Generate random mine positions
       while (mineIndexes.length < mineCount) {
-        let index = Math.floor(Math.random() * (gridSize * gridSize));
+        let index = Math.floor(Math.random() * TOTAL_TILES);
         if (!mineIndexes.includes(index)) {
           mineIndexes.push(index);
         }
       }
 
       // Create grid tiles
-      for (let i = 0; i < gridSize * gridSize; i++) {
+      for (let i = 0; i < TOTAL_TILES; i++) {
         const tile = document.createElement('div');
         tile.className = 'tile';
         tile.addEventListener('click', () => handleClick(i));
         gameBoard.appendChild(tile);
         tiles.push(tile);
       }
-
-      // Store the multiplier
-      gameBoard.dataset.multiplier = multiplier.toFixed(2);
     }
 
     function handleClick(index) {
       if (!gameStarted || gameOver || tiles[index].classList.contains('clicked')) return;
 
       if (mineIndexes.includes(index)) {
+        // Hit a mine - lose
         tiles[index].classList.add('mine');
-        document.getElementById('status').textContent = '💥 You hit a mine! Bet lost.';
+        tiles[index].textContent = '💣';
+        document.getElementById('status').textContent = '💥 MINE HIT! Bet lost.';
         document.getElementById('status').className = 'lose';
         revealAllMines();
-        gameOver = true;
-        document.getElementById('cashOutBtn').disabled = true;
-        winnings = 0;
+        endGame(false);
       } else {
+        // Safe tile clicked
         tiles[index].classList.add('clicked');
+        tiles[index].textContent = '✅';
         safeClicks++;
 
-        // Dynamically adjust the winnings multiplier based on mine count
-        const multiplier = parseFloat(document.getElementById('game').dataset.multiplier);
-        winnings *= multiplier;
+        // Calculate new winnings: each safe click multiplies winnings by the odds
+        winnings = currentBet * Math.pow(multiplier, safeClicks);
+        updateDisplay();
 
-        document.getElementById('status').textContent = `✅ Safe! Winnings: $${winnings.toFixed(2)}`;
-        document.getElementById('status').className = 'win';
+        const safeTilesRemaining = TOTAL_TILES - mineCount - safeClicks;
 
-        if (safeClicks === (gridSize * gridSize - mineCount)) {
-          document.getElementById('status').textContent = `🎉 All safe tiles found! You win $${winnings.toFixed(2)}`;
+        if (safeTilesRemaining === 0) {
+          // Won the game - revealed all safe tiles
+          document.getElementById('status').textContent = `🎉 PERFECT! All safe tiles found! You win $${winnings.toFixed(2)}`;
           document.getElementById('status').className = 'win';
           balance += winnings;
-          updateBalance();
-          gameOver = true;
-          document.getElementById('cashOutBtn').disabled = true;
+          updateDisplay();
+          endGame(true);
+        } else {
+          document.getElementById('status').textContent = `✅ Safe! Winnings: $${winnings.toFixed(2)} (${safeTilesRemaining} safe left)`;
+          document.getElementById('status').className = 'win';
         }
       }
     }
@@ -260,21 +592,45 @@
     function revealAllMines() {
       mineIndexes.forEach(i => {
         tiles[i].classList.add('mine');
+        tiles[i].textContent = '💣';
       });
+    }
+
+    function endGame(won) {
+      gameOver = true;
+      gameStarted = false;
+      document.getElementById('cashOutBtn').disabled = true;
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('mineSlider').disabled = false;
+      document.getElementById('betAmount').disabled = false;
+      
+      // Disable all tiles
+      tiles.forEach(tile => tile.style.pointerEvents = 'none');
     }
 
     function cashOut() {
       if (gameOver || !gameStarted) return;
+      
       balance += winnings;
-      updateBalance();
-      document.getElementById('status').textContent = `💰 You cashed out: $${winnings.toFixed(2)}`;
+      updateDisplay();
+      
+      document.getElementById('status').textContent = `💰 Cashed out: $${winnings.toFixed(2)}`;
       document.getElementById('status').className = 'win';
-      gameOver = true;
-      document.getElementById('cashOutBtn').disabled = true;
       revealAllMines();
+      endGame(true);
     }
 
-    updateBalance();
+    function resetBalance() {
+      if (confirm('Reset your balance to $100.00?')) {
+        balance = 100;
+        updateDisplay();
+        document.getElementById('status').textContent = '🔄 Balance reset to $100.00';
+        document.getElementById('status').className = '';
+      }
+    }
+
+    // Initial display update
+    updateDisplay();
   </script>
 </body>
 </html>
